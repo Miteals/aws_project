@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <style>
+      .gallery {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .gallery img {
+        width: 300px;
+        height: 200px;
+        object-fit: cover;
+        margin: 10px;
+        cursor: pointer;
+        max-width: 300px;
+        max-height: 200px;
+      }
+      .zoomed {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 800px;
+        height: 800px;
+        z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gallery">
+    </div>
+    <script>
+      const gallery = document.querySelector('.gallery');
+
+      fetch('${LAMBDA_URL}')
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(photo => {
+            const img = document.createElement('img');
+            img.src = "https://${CF_URL}/256x256/" + photo.name;
+            img.setAttribute('data-full', "https://${CF_URL}/" + photo.name);
+            img.onclick = function() {
+              this.classList.toggle('zoomed');
+              if (this.classList.contains('zoomed')) {
+                this.src = this.getAttribute('data-full');
+              } else {
+                this.src = "https://${CF_URL}/256x256/" + photo.name;
+              }
+            };
+            gallery.appendChild(img);
+          });
+        })
+        .catch(error => console.error(error));
+    </script>
+  </body>
+</html>
